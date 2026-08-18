@@ -113,7 +113,7 @@ def generate_test_cases(task_description: str) -> str:
 # 5. GRAPH NODES
 # =========================================================
 
-# ---------------- INPUT NODE ----------------
+# ---------------- INPUT ----------------
 
 def task_input_node(state: CrewState):
 
@@ -130,7 +130,7 @@ def task_input_node(state: CrewState):
     }
 
 
-# ---------------- DEVELOPER NODE ----------------
+# ---------------- DEVELOPER ----------------
 
 def real_time_developer(state: CrewState):
 
@@ -178,7 +178,7 @@ def real_time_developer(state: CrewState):
     }
 
 
-# ---------------- TESTER NODE ----------------
+# ---------------- TESTER ----------------
 
 def real_time_tester(state: CrewState):
 
@@ -186,7 +186,6 @@ def real_time_tester(state: CrewState):
 
     task = state["messages"][-1].content
 
-    # Generate test scenarios
     test_cases = generate_test_cases.invoke(task)
 
     if isinstance(test_cases, list):
@@ -207,7 +206,6 @@ def real_time_tester(state: CrewState):
 
         cases_str = str(test_cases)
 
-    # Execute generated code
     print("\n[TESTER] Executing generated code...")
 
     execution_result = run_python_code.invoke(
@@ -217,9 +215,9 @@ def real_time_tester(state: CrewState):
     )
 
     report = (
-        "### EXECUTION OUTPUT:\n"
+        "EXECUTION OUTPUT:\n"
         f"{execution_result}\n\n"
-        "### TEST SCENARIOS:\n"
+        "TEST SCENARIOS:\n"
         f"{cases_str}"
     )
 
@@ -231,7 +229,7 @@ def real_time_tester(state: CrewState):
     }
 
 
-# ---------------- MANAGER NODE ----------------
+# ---------------- MANAGER ----------------
 
 def manager_decision_node(state: CrewState):
 
@@ -250,7 +248,7 @@ def manager_decision_node(state: CrewState):
     }
 
 
-# ---------------- ARCHIVER NODE ----------------
+# ---------------- ARCHIVER ----------------
 
 def archiver_node(state: CrewState):
 
@@ -268,8 +266,6 @@ def archiver_node(state: CrewState):
 
 rt_workflow = StateGraph(CrewState)
 
-
-# Add nodes
 
 rt_workflow.add_node(
     "task_input",
@@ -361,7 +357,7 @@ rt_workflow.add_edge(
 )
 
 
-# Compile graph
+# Compile LangGraph
 
 rt_app = rt_workflow.compile()
 
@@ -371,14 +367,14 @@ print(
 
 
 # =========================================================
-# 7. FLASK APPLICATION
+# 7. FLASK WEB APPLICATION
 # =========================================================
 
 app = Flask(__name__)
 
 
 # =========================================================
-# HTML PAGE
+# 8. HTML + CSS
 # =========================================================
 
 HTML = """
@@ -392,71 +388,212 @@ HTML = """
 
     <style>
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            margin: 0;
-            padding: 40px;
+        * {
+            box-sizing: border-box;
         }
+
+        body {
+
+            font-family: Arial, sans-serif;
+
+            background: #ffffff;
+
+            margin: 0;
+
+            padding: 40px;
+
+            color: #222222;
+
+        }
+
 
         .container {
-            max-width: 900px;
+
+            max-width: 950px;
+
             margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+            background: #ffffff;
+
+            padding: 35px;
+
+            border-radius: 15px;
+
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+
         }
+
 
         h1 {
+
             text-align: center;
-            color: #333;
+
+            color: #333333;
+
+            margin-bottom: 30px;
+
         }
+
+
+        /* =========================
+           WORKFLOW
+           ========================= */
+
+        .workflow {
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            gap: 10px;
+
+            margin-bottom: 35px;
+
+        }
+
+
+        .step {
+
+            padding: 12px 16px;
+
+            border-radius: 10px;
+
+            background: #f4f2ff;
+
+            border: 1px solid #d8d2ff;
+
+            font-weight: bold;
+
+            color: #4b3ca7;
+
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+
+        }
+
+
+        .arrow {
+
+            font-size: 20px;
+
+            color: #777777;
+
+            font-weight: bold;
+
+        }
+
+
+        /* =========================
+           INPUT AREA
+           ========================= */
+
+        label {
+
+            font-size: 16px;
+
+            color: #333333;
+
+        }
+
 
         textarea {
+
             width: 100%;
+
             height: 120px;
-            padding: 12px;
+
+            padding: 14px;
+
+            margin-top: 10px;
+
             font-size: 16px;
-            box-sizing: border-box;
-            border-radius: 8px;
-            border: 1px solid #ccc;
+
+            border-radius: 10px;
+
+            border: 1px solid #cccccc;
+
+            resize: vertical;
+
+            outline: none;
+
         }
+
+
+        textarea:focus {
+
+            border-color: #6c5ce7;
+
+            box-shadow: 0 0 5px rgba(108,92,231,0.25);
+
+        }
+
 
         button {
+
             margin-top: 15px;
-            padding: 12px 25px;
+
+            padding: 12px 28px;
+
             background: #6c5ce7;
+
             color: white;
+
             border: none;
+
             border-radius: 8px;
+
             font-size: 16px;
+
             cursor: pointer;
+
         }
+
 
         button:hover {
+
             background: #5848c2;
+
         }
 
-        .flow {
-            margin: 20px 0;
-            padding: 15px;
-            background: #eee;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
+
+        /* =========================
+           RESULT
+           ========================= */
+
+        .result-title {
+
+            margin-top: 35px;
+
+            color: #333333;
+
         }
+
 
         .result {
-            margin-top: 30px;
-            background: #111;
-            color: #eee;
-            padding: 20px;
-            border-radius: 10px;
+
+            margin-top: 15px;
+
+            background: #f7f7f7;
+
+            color: #222222;
+
+            padding: 22px;
+
+            border-radius: 12px;
+
+            border: 1px solid #dddddd;
+
             white-space: pre-wrap;
+
             overflow-x: auto;
-            line-height: 1.5;
+
+            line-height: 1.55;
+
         }
+
 
     </style>
 
@@ -465,37 +602,82 @@ HTML = """
 
 <body>
 
+
 <div class="container">
 
+
     <h1>
+
         🤖 LangGraph AI Developer & Tester
+
     </h1>
 
 
-    <div class="flow">
+    <!-- WORKFLOW -->
 
-        📥 INPUT
-        →
-        👨‍💻 DEVELOPER
-        →
-        🧪 TESTER
-        →
-        👨‍💼 MANAGER
-        →
-        🗄️ ARCHIVER
-        →
-        🏁 END
+    <div class="workflow">
+
+        <div class="step">
+            📥 Input
+        </div>
+
+        <div class="arrow">
+            →
+        </div>
+
+        <div class="step">
+            👨‍💻 Developer
+        </div>
+
+        <div class="arrow">
+            →
+        </div>
+
+        <div class="step">
+            🧪 Tester
+        </div>
+
+        <div class="arrow">
+            →
+        </div>
+
+        <div class="step">
+            👨‍💼 Manager
+        </div>
+
+        <div class="arrow">
+            →
+        </div>
+
+        <div class="step">
+            🗄️ Archiver
+        </div>
+
+        <div class="arrow">
+            →
+        </div>
+
+        <div class="step">
+            🏁 End
+        </div>
 
     </div>
 
 
+    <!-- FORM -->
+
     <form method="POST">
 
+
         <label>
+
             <b>Enter your coding task:</b>
+
         </label>
 
-        <br><br>
+
+        <br>
+
 
         <textarea
             name="task"
@@ -503,18 +685,29 @@ HTML = """
             required
         ></textarea>
 
+
         <br>
 
+
         <button type="submit">
+
             Generate
+
         </button>
+
 
     </form>
 
 
     {% if report %}
 
-        <hr>
+
+        <h2 class="result-title">
+
+            Generated Result
+
+        </h2>
+
 
         <div class="result">
 
@@ -522,9 +715,12 @@ HTML = """
 
         </div>
 
+
     {% endif %}
 
+
 </div>
+
 
 </body>
 
@@ -533,7 +729,7 @@ HTML = """
 
 
 # =========================================================
-# 8. WEB ROUTE
+# 9. WEB ROUTE
 # =========================================================
 
 @app.route(
@@ -545,12 +741,14 @@ def home():
 
     report = None
 
+
     if request.method == "POST":
 
         task = request.form.get(
             "task",
             ""
         ).strip()
+
 
         if task:
 
@@ -569,53 +767,57 @@ def home():
                     "code": None,
 
                     "report": None
+
                 }
 
 
                 # Run LangGraph
 
                 result = rt_app.invoke(
+
                     initial_state,
+
                     config={
                         "recursion_limit": 50
                     }
+
                 )
 
 
                 generated_code = result.get(
+
                     "code",
+
                     "No code generated."
+
                 )
 
 
                 tester_report = result.get(
+
                     "report",
+
                     "No report generated."
+
                 )
 
 
                 # =================================================
-                # FINAL WEBSITE OUTPUT
+                # FINAL OUTPUT
                 # =================================================
 
                 report = (
 
                     "📥 INPUT\n\n"
 
-                    f"{task}\n\n"
-
-
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                    f"{task}\n\n\n"
 
 
                     "👨‍💻 DEVELOPER\n\n"
 
                     "The Developer node generated the following code:\n\n"
 
-                    f"{generated_code}\n\n"
-
-
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                    f"{generated_code}\n\n\n"
 
 
                     "🧪 TESTER\n\n"
@@ -623,76 +825,81 @@ def home():
                     "The Tester node generated test scenarios "
                     "and executed the generated code.\n\n"
 
-                    f"{tester_report}\n\n"
-
-
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                    f"{tester_report}\n\n\n"
 
 
                     "👨‍💼 MANAGER\n\n"
 
                     "Report reviewed successfully.\n"
 
-                    "Decision: Send task to Archiver.\n\n"
-
-
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                    "Decision: Send task to Archiver.\n\n\n"
 
 
                     "🗄️ ARCHIVER\n\n"
 
                     "Task stored successfully.\n"
 
-                    "Workflow is closing.\n\n"
-
-
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                    "Workflow is closing.\n\n\n"
 
 
                     "🏁 END\n\n"
 
-                    "Workflow completed successfully.\n\n"
-
-
-                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                    "Workflow completed successfully.\n\n\n"
 
 
                     "🔄 LANGGRAPH WORKFLOW\n\n"
 
                     "INPUT → DEVELOPER → TESTER → "
                     "MANAGER → ARCHIVER → END"
+
                 )
 
 
             except Exception:
 
                 report = (
+
                     "❌ WORKFLOW ERROR\n\n"
+
                     f"{traceback.format_exc()}"
+
                 )
 
 
     return render_template_string(
+
         HTML,
+
         report=report
+
     )
 
 
 # =========================================================
-# 9. START FLASK SERVER
+# 10. START FLASK SERVER
 # =========================================================
 
 if __name__ == "__main__":
 
     port = int(
+
         os.environ.get(
+
             "PORT",
+
             5000
+
         )
+
     )
 
+
     app.run(
+
         host="0.0.0.0",
+
         port=port,
+
         debug=False
+
     )
