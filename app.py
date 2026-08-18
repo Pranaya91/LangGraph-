@@ -124,10 +124,12 @@ def real_time_developer(state: CrewState):
     task = state["messages"][-1].content
 
     dev_prompt = (
-        "Write a clean Python script to solve this: "
-        f"{task}. "
-        "Only return the code, no explanation or markdown formatting."
-    )
+    f"Write a clean Python script to solve this: {task}. "
+    "The code will be automatically executed by a tester. "
+    "Do NOT use input() or interactive user input. "
+    "Use sample values directly in the code so it can run automatically. "
+    "Only return the code, no explanation or markdown formatting."
+)
 
     response = llm_flash.invoke(dev_prompt)
 
