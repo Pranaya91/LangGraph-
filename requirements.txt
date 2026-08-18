@@ -1,0 +1,5 @@
+Flask
+langchain-core
+langgraph
+langchain-google-genai
+google-generativeai
